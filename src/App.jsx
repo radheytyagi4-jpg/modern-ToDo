@@ -10,6 +10,8 @@
 //checkbox add krna task pe
 //toggle fn se value change hoke ui change hogi
 //total or remianing tasks show karne
+//filters array banana
+//visible krne ui pe tabs or tasks
 
 import { useEffect, useState } from "react"
 import './App.css'
@@ -25,8 +27,6 @@ function App() {
 
   const totalTasks = tasks.length;
   const remainingTasks = tasks.filter((task) => !task.done).length;
-
-  const [done, setDone] = useState(false);
 
   const addTask = () => {
     if (task.trim() === "") return alert("Please enter a task");
@@ -65,6 +65,22 @@ function App() {
     setTasks(newTasks);
   };
 
+  const [ filter, setFilter ] = useState("all");
+  const filters = [
+    { key: "all", label: "All" },
+    { key: "done", label: "Done" },
+    { key: "left", label: "Left" }
+  ];
+
+  const activeIndex = filters.findIndex((f) => f.key === filter);
+
+  const visibleTasks = tasks.filter((t)=>{
+    if(filter ==="done") return t.done;
+    if(filter ==="left") return !t.done;
+
+    return true;
+  });
+
   return (
     <>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-400 to-emerald-400  ">
@@ -94,34 +110,49 @@ function App() {
             <h2>Total Tasks : {totalTasks}</h2>
             <h2>Remaining : {remainingTasks}</h2>
           </div>
-          {tasks.map((task, id) => {
-            return (
-              <>
-                <ul
-                  className="flex flex-col gap-4"
-                >
-                  <li key={task.id}
-                    className="py-2 px-2 text-2xl font-bold"
-                  >
-                    <input className="m-3 "
-                      checked={task.done}
-                      onChange={() => toggleTask(task.id)}
-                      type="checkbox" />
-                    <span className={task.done ? "line-through text-gray-500" : ""} >
-                      {task.text}
-                    </span>
-                    <button
-                      className="text-2xl ml-35"
-                      onClick={() => removeTask(task.id)}>❎</button>
-                  </li>
-                </ul>
-              </>
-            )
-          })}
+          <div className="relative flex w-64 mx-auto rounded-full bg-white/40 p-1">
+            <div
+              className="absolute top-1 bottom-1 left-1 w-[calc((100%-0.5rem)/3)] rounded-full bg-gray-300 shadow-md transition-transform duration-300 ease-out"
+              style={{ transform: `translateX(${activeIndex * 100}%)` }}
+            />
+            {filters.map((f) => (
+              <button
+                Key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`relative z-10 flex-1 py-1.5 text-sm font-semibold transition-colors duration-300 ${filter === f.key ? "text-blue-600" : "text-gray-700"}`}
+                    >
+                      {f.label}
+                    </button>
+            ))}
         </div>
+        {visibleTasks.map((task, id) => {
+          return (
+            <>
+              <ul
+                className="flex flex-col gap-4"
+              >
+                <li key={task.id}
+                  className="py-2 px-2 text-2xl font-bold"
+                >
+                  <input className="m-3 "
+                    checked={task.done}
+                    onChange={() => toggleTask(task.id)}
+                    type="checkbox" />
+                  <span className={task.done ? "line-through text-gray-500" : ""} >
+                    {task.text}
+                  </span>
+                  <button
+                    className="text-2xl ml-35"
+                    onClick={() => removeTask(task.id)}>❎</button>
+                </li>
+              </ul>
+            </>
+          )
+        })}
       </div>
-    </>
-  )
+    </div >
+      </>
+      )
 }
 
 export default App
