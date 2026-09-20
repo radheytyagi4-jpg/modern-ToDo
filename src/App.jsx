@@ -9,6 +9,7 @@
 //local storage mai save 
 //checkbox add krna task pe
 //toggle fn se value change hoke ui change hogi
+//total or remianing tasks show karne
 
 import { useEffect, useState } from "react"
 import './App.css'
@@ -21,6 +22,9 @@ function App() {
     const saved = localStorage.getItem("tasks");
     return saved ? JSON.parse(saved) : [];
   });
+
+  const totalTasks = tasks.length;
+  const remainingTasks = tasks.filter((task) => !task.done).length;
 
   const [done, setDone] = useState(false);
 
@@ -39,8 +43,8 @@ function App() {
   };
 
   const removeTask = (id) => {
-    setTasks(tasks.filter((task)=>{
-      return task.id !==id
+    setTasks(tasks.filter((task) => {
+      return task.id !== id
     }));
   };
 
@@ -51,15 +55,15 @@ function App() {
   },
     [tasks])
 
-    const toggleTask = (id)=>{
-      const newTasks = tasks.map((task)=>{
-        if(task.id === id){
-          return {...task, done: !task.done };
-        }
-        return task;
-      });
-      setTasks(newTasks);
-    };
+  const toggleTask = (id) => {
+    const newTasks = tasks.map((task) => {
+      if (task.id === id) {
+        return { ...task, done: !task.done };
+      }
+      return task;
+    });
+    setTasks(newTasks);
+  };
 
   return (
     <>
@@ -86,27 +90,32 @@ function App() {
         </div>
         <div
           className="p-2 min-h-20 min-w-70 rounded-3xl bg-white">
+          <div className="flex justify-between font-medium m-2">
+            <h2>Total Tasks : {totalTasks}</h2>
+            <h2>Remaining : {remainingTasks}</h2>
+          </div>
           {tasks.map((task, id) => {
             return (
-
-              <ul
-                className="flex flex-col gap-4"
-              >
-                <li key={task.id}
-                  className="py-2 px-2 text-2xl font-bold"
+              <>
+                <ul
+                  className="flex flex-col gap-4"
                 >
-                  <input className="m-3 " 
-                  checked={task.done}
-                  onChange={()=> toggleTask(task.id)}   
-                  type="checkbox" />
-                  <span className={task.done ? "line-through text-gray-500" : ""} >
-                    {task.text}
-                  </span>
-                  <button
-                  className="text-2xl ml-35"
-                  onClick={() => removeTask(task.id)}>❎</button>
+                  <li key={task.id}
+                    className="py-2 px-2 text-2xl font-bold"
+                  >
+                    <input className="m-3 "
+                      checked={task.done}
+                      onChange={() => toggleTask(task.id)}
+                      type="checkbox" />
+                    <span className={task.done ? "line-through text-gray-500" : ""} >
+                      {task.text}
+                    </span>
+                    <button
+                      className="text-2xl ml-35"
+                      onClick={() => removeTask(task.id)}>❎</button>
                   </li>
-              </ul>
+                </ul>
+              </>
             )
           })}
         </div>
