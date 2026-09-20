@@ -7,6 +7,8 @@
 //task ko show krana ui pe
 //delete task fn se task remove
 //local storage mai save 
+//checkbox add krna task pe
+//toggle fn se value change hoke ui change hogi
 
 import { useEffect, useState } from "react"
 import './App.css'
@@ -25,18 +27,21 @@ function App() {
   const addTask = () => {
     if (task.trim() === "") return alert("Please enter a task");
 
-
-    const newTasks = [...tasks]
-    newTasks.push(task);
-    setTasks(newTasks);
+    const newTasks = {
+      id: Date.now(),
+      text: task,
+      done: false,
+    }
+    // const newTasks = [...tasks]
+    // newTasks.push(task);
+    setTasks([...tasks, newTasks]);
     setTask("");
   };
 
-  const removeTask = (index) => {
-    const newTasks = tasks.filter((task, i) => {
-      return i !== index;
-    })
-    setTasks(newTasks);
+  const removeTask = (id) => {
+    setTasks(tasks.filter((task)=>{
+      return task.id !==id
+    }));
   };
 
   useEffect(() => {
@@ -45,6 +50,17 @@ function App() {
     )
   },
     [tasks])
+
+    const toggleTask = (id)=>{
+      const newTasks = tasks.map((task)=>{
+        if(task.id === id){
+          return {...task, done: !task.done };
+        }
+        return task;
+      });
+      setTasks(newTasks);
+    };
+
   return (
     <>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-400 to-emerald-400  ">
@@ -70,22 +86,25 @@ function App() {
         </div>
         <div
           className="p-2 min-h-20 min-w-70 rounded-3xl bg-white">
-          {tasks.map((task, index) => {
+          {tasks.map((task, id) => {
             return (
 
               <ul
                 className="flex flex-col gap-4"
               >
-                <li key={index}
+                <li key={task.id}
                   className="py-2 px-2 text-2xl font-bold"
-                ><button
-                  className="text-2xl mx-2"
-                  onClick={() => removeTask(index)}>❎</button>
-                  {task}
-                  <input className="ml-35 " 
-                  value={done} 
-                  onChange={(e) => setDone(e.target.checked)}   
+                >
+                  <input className="m-3 " 
+                  checked={task.done}
+                  onChange={()=> toggleTask(task.id)}   
                   type="checkbox" />
+                  <span className={task.done ? "line-through text-gray-500" : ""} >
+                    {task.text}
+                  </span>
+                  <button
+                  className="text-2xl ml-35"
+                  onClick={() => removeTask(task.id)}>❎</button>
                   </li>
               </ul>
             )
